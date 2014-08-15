@@ -4,6 +4,7 @@ A basic class for polynomials with generic coefficient type
 import types
 class Poly:
 	coeffs = []
+	degree = 0
 	# construct from coefficient list or a string in the form a_nX^n+...+a0
 	def __init__(self, coeffs):
 		if isinstance(coeffs, list):
@@ -16,6 +17,7 @@ class Poly:
 		else:
 			# init from string
 			self.__read(coeffs)
+		self.degree = len(self.coeffs)
 
 
 	# Print polynomial in the form a_nX^n+...+a0
@@ -54,6 +56,13 @@ class Poly:
 		# set coefficient list with coefficients from dict
 		self.coeffs = [0 for _ in range(max(coeff.keys())+1)]
 		for i in coeff.keys(): self.coeffs[i] = coeff[i]
+
+	# evaluation (naive evaluation method for now)
+	def __call__(self,x):
+		result = 0
+		for i,a in enumerate(self.coeffs):
+			result += a*pow(x,i)
+		return result
 
 
 

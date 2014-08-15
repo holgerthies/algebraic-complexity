@@ -28,6 +28,18 @@ def __tk_multiply_by_interpolation(deg,p1,p2):
 	list_a.reverse()
 	p = poly.Poly(list_a)
 	return p
+
+# splits the polynomial into smaller polynomials s.t.
+# each of the polynomials has degree < k
+# i.e. returns polynomials p_0,..p_m of deg < k
+# s.t. p = p_0+X^k*p_1+...+X^(m*k)p_m
+def __tk_split_polynomial(p, k):
+	polys = []
+	for i in range(0,p.degree, k):
+		q = poly.Poly(p.coeffs[i:i+k])
+		polys.append(q)
+	return polys
+
 # generic Toom-Cook multiplication 
 # Special cases: 
 # k=1 : naive multiplication
@@ -37,4 +49,5 @@ def toomCook(k,p1,p2):
 	# split into polynomials of degree k
 	if p1.degree <= k and p2.degree <= k:
 		return __tk_multiply_by_interpolation(k, p1,p2)
+	p1_split = __tk_split_polynomial(p1,k)
 

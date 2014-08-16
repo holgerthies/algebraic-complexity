@@ -21,7 +21,7 @@ class Poly:
 
 
 	# Print polynomial in the form a_nX^n+...+a0
-	def __str__(self):
+	def __repr__(self):
 		if len(self.coeffs) == 0:
 			return ""
 		l = []
@@ -35,6 +35,23 @@ class Poly:
 					l.append(str(self.coeffs[i])+"X^"+str(i))
 		l.reverse()
 		return ' + '.join(l)
+
+	# scalar multiplication
+	def __mul__(self, other):
+		new_coeffs = [x*other for x in self.coeffs]
+		return Poly(new_coeffs)
+
+	def __rmul__(self, other):
+		return self*other
+
+	# add two polynomials
+	def __add__(self,other):
+		new_coeffs = [0 for i in range(max(len(self.coeffs), len(other.coeffs)))]
+		for i,x in enumerate(self.coeffs):
+			new_coeffs[i] = x
+		for i,x in enumerate(other.coeffs):
+			new_coeffs[i] += x
+		return Poly(new_coeffs)
 
 	# Read a polynomial in the form the __str__  method returns
 	def __read(self, str):
@@ -59,9 +76,10 @@ class Poly:
 
 	# evaluation (naive evaluation method for now)
 	def __call__(self,x):
-		result = 0
+		result = self.coeffs[0]
 		for i,a in enumerate(self.coeffs):
-			result += a*pow(x,i)
+			if i>0:
+				result += a*pow(x,i)
 		return result
 
 

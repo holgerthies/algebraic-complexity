@@ -74,7 +74,7 @@ class Poly:
 		self.coeffs = [0 for _ in range(max(coeff.keys())+1)]
 		for i in coeff.keys(): self.coeffs[i] = coeff[i]
 
-	# evaluation (naive evaluation method for now)
+	# evaluation (naive evaluation method for now, should be replaced by Horner)
 	def __call__(self,x):
 		result = self.coeffs[0]
 		for i,a in enumerate(self.coeffs):

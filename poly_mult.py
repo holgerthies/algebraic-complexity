@@ -9,6 +9,18 @@ def naive(p1,p2):
 			coeffs[i+j] += a*b
 	return poly.Poly(coeffs)
 
+# get the inverse vandermonde matrix
+# from precomputed values
+def __tk_inverse_vandermonde(N):
+	if N==3:
+		return np.matrix([[ 0.5, -1. ,  0.5],[-1.5,  2. , -0.5],[ 1. ,  0. ,  0. ]])
+	# use the points 0,1,2,..,N-1 as evaluation points
+	x = __tk_get_evaluationpoints(N)
+	return np.matrix(np.vander(x,N)).I
+def __tk_get_evaluationpoints(N):
+	if N==3:
+		return np.array([0,1,2])
+	return np.arange(N)
 # gets a list of coefficients representing a polynomial
 # p_0 + p_1*Y + ... + p_n*Y^n where p_i are polynomials over X
 # and substitutes X^degree_subst for Y
@@ -27,16 +39,16 @@ def __tk_multiply_by_interpolation(p1,p2, k):
 	deg = p1.degree+p2.degree
 	# number of evaluation points
 	N = deg-1
-	# use the points 0,1,2,..,N-1 as evaluation points
-	x = np.arange(N)
-	# Van der Monde Matrix 
-	V = np.matrix(np.vander(x,N))
+	# evaluation points
+	x = __tk_get_evaluationpoints(N)
+	# Inverse van der Monde Matrix 
+	V = __tk_inverse_vandermonde(N)
 	# evaluate the polynomials at N points and multiply the results
 	# compute the product polynomial by recursively calling toom-cook
 	y = np.array([toomCook(k,p1(xi),p2(xi)) for xi in x])
 	# solve system of linear equations to get coefficients
 	# NOTE: This could be made faster by making use of the matrix structure 
-	a = np.dot(V.I,y)
+	a = np.dot(V,y)
 	# make polynomial from the calculated coefficients
 	list_a = a.tolist()
 	list_a = list_a[0]
@@ -81,5 +93,35 @@ def toomCook(k,p1,p2):
 	#print __tk_multiply_by_interpolation(p1_split, p2_split, k)
 	#print "________________________________________"
 	return __tk_multiply_by_interpolation(p1_split, p2_split, k)
+
+# The discrete fourier transform algorithm
+# input is a list A=[a_0,..a_n] of some field and an N-th root of unity of this field
+# applies the fast fourier transform algorithm to this vector
+def __fft_dft(A, omega):
+	N = len(A)
+	if N==1:
+		return A
+	# split into even and odd list entries
+	A_even = A[::2]
+	A_odd = A[1::2]
+	# recursively apply fft on even and odd list elements
+	omega2 = omega*omega # an N/2-th root of unity
+	DFT_even = __fft_dft(A_even, omega2)
+	DFT_odd = __fft_dft(A_odd, omega2)
+	# make list for result
+	A_transformed = [0 for _ in range(N)]
+	# omega_pow will contain omega^i in the i-th call of the loop
+	omega_pow = 1
+	for i in range(N/2):
+		# The first half of Â is given by DFT(N/2)*A_even+diag(1,omega,..., omega^(N/2-1))*A_odd
+		A_transformed[i] = DFT_even[i]+omega_pow*DFT_odd[i]
+		# The second half of Â is given by DFT(N/2)*A_even-diag(1,omega,..., omega^(N/2-1))*A_odd
+		A_transformed[N/2+i] = DFT_even[i]-omega_pow*DFT_odd[i]
+		# omega value for next iteration
+		omega_pow *= omega
+	return A_transformed
+# multiplication using fast fourier transform
+#def fft(p1,p2):
+	# 
 
 

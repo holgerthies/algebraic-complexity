@@ -74,13 +74,17 @@ class Poly:
 		self.coeffs = [0 for _ in range(max(coeff.keys())+1)]
 		for i in coeff.keys(): self.coeffs[i] = coeff[i]
 
-	# evaluation (naive evaluation method for now, should be replaced by Horner)
+	# evaluation using Horner Schema
 	def __call__(self,x):
-		result = self.coeffs[0]
-		for i,a in enumerate(self.coeffs):
-			if i>0:
-				result += a*pow(x,i)
-		return result
+		a = self.coeffs
+		# Horner scheme
+		n = len(a)-1
+		# b_n := a_n
+		b = [a[n]] # Note b is in reversed order so b[i] = b[n-i]
+		for i in range(1,n+1):
+			b.append(a[n-i]+b[i-1]*x)
+		return b[n]
+
 
 
 

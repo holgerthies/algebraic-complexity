@@ -113,9 +113,9 @@ def __fft_dft(A, omega):
 	# omega_pow will contain omega^i in the i-th call of the loop
 	omega_pow = 1
 	for i in range(N/2):
-		# The first half of Â is given by DFT(N/2)*A_even+diag(1,omega,..., omega^(N/2-1))*A_odd
+		# The first half of DFT(N)*A is given by DFT(N/2)*A_even+diag(1,omega,..., omega^(N/2-1))*A_odd
 		A_transformed[i] = DFT_even[i]+omega_pow*DFT_odd[i]
-		# The second half of Â is given by DFT(N/2)*A_even-diag(1,omega,..., omega^(N/2-1))*A_odd
+		# The second half of DFT(N)*A is given by DFT(N/2)*A_even-diag(1,omega,..., omega^(N/2-1))*A_odd
 		A_transformed[N/2+i] = DFT_even[i]-omega_pow*DFT_odd[i]
 		# omega value for next iteration
 		omega_pow *= omega

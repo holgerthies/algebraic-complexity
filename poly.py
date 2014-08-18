@@ -26,7 +26,7 @@ class Poly:
 			return ""
 		l = []
 		for i in range(len(self.coeffs)):
-			if self.coeffs[i] > 0:
+			if self.coeffs[i] != 0:
 				if i == 0:
 					l.append(str(self.coeffs[i]))
 				elif i==1:

@@ -1,5 +1,6 @@
 import poly
 import numpy as np
+import cmath
 # naive multiplication algorithm
 # complexity O(n^2)
 def naive(p1,p2):
@@ -104,9 +105,10 @@ def __fft_dft(A, omega):
 	# split into even and odd list entries
 	A_even = A[::2]
 	A_odd = A[1::2]
+	#omega^2 is an N/2-th root of unity
+	omega2 = omega*omega
 	# recursively apply fft on even and odd list elements
-	omega2 = omega*omega # an N/2-th root of unity
-	DFT_even = __fft_dft(A_even, omega2)
+	DFT_even = __fft_dft(A_even, omega2) 
 	DFT_odd = __fft_dft(A_odd, omega2)
 	# make list for result
 	A_transformed = [0 for _ in range(N)]
@@ -120,8 +122,36 @@ def __fft_dft(A, omega):
 		# omega value for next iteration
 		omega_pow *= omega
 	return A_transformed
+
+# computes the inverse of the discrete fourier transform
+# We want to compute A=vander(omega,N)^-1*A_trans = 1/N*vander(omega^-1,N)*A_trans
+# Thus DFT^-1(A,omega) = DFT(A,omega^-1)/N
+def __fft_inverse_dft(A,omega):
+	N = len(A)
+	# inverse of omega
+	omega_inverse = 1/omega
+	# Apply DFT
+	return [int(round((x/N).real)) for x in __fft_dft(A,omega_inverse)]
+
 # multiplication using fast fourier transform
-#def fft(p1,p2):
-	# 
+def fft(p1,p2):
+	# assume both polynomials have the same degree which is a power of 2
+	#degree of the resulting polynomial
+	N = len(p1.coeffs)+len(p2.coeffs)
+	# Fill coefficient list for fast fourier transform so that both vectors have length N
+	A1 = p1.coeffs+[0 for _ in range(N-len(p1.coeffs))]
+	A2 = p2.coeffs+[0 for _ in range(N-len(p2.coeffs))]
+	# assume complex polynomials thus root of unity is e^((2pi/N)i)
+	omega = np.exp(-2j * np.pi  / N)
+	# apply discrete fourier transformation to both polynomials
+	A1_transformed = __fft_dft(A1, omega)
+	A2_transformed =  __fft_dft(A2, omega)
+	# combine the result by multipilying them to get the result of the FFT of p1*p2
+	A_transformed = [A1_transformed[i]*A2_transformed[i] for i in range(N)]
+	# apply inverse fourier transform to obtain the coefficients
+	A = __fft_inverse_dft(A_transformed, omega)
+	# return polynomial with coefficients from A
+	return poly.Poly(A)
+
 
 
